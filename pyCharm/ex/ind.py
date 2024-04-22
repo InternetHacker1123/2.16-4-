@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+from jsonschema import validate
 
 
 def add(sp):
@@ -106,7 +107,25 @@ def load_trains():
     file_name = input("Введите названия файла из которого загрузить данные")
     # Открыть файл с заданным именем для чтения.
     with open(file_name, "r", encoding="utf-8") as fin:
-        return json.load(fin)
+        json_schema = {
+            "type": "object",
+            "properties": {
+                "Пункт назначения ": {"type": "string"},
+                "Номер поезда: ": {"type": "string"},
+                "Время отправления:": {"type": "string"}
+            },
+            "required": ["Пункт назначения ", "Номер поезда: ", "Время отправления:"]
+        }
+
+        # Валидация данных
+        data = json.load(fin)
+        try:
+            for item in range(len(data)):
+                validate(instance=data[item], schema=json_schema)
+                print("Данные прошли валидацию по JSON Schema.")
+                return data
+        except Exception as e:
+            print(f"Ошибка валидации данных: {e}")
 
 
 if __name__ == '__main__':
